@@ -27,10 +27,12 @@ import com.google.android.gms.tasks.Task;
 public class PlaceActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = PlaceActivity.class.getSimpleName();
     private static final int PLACE_PICKER_REQUEST = 1;
+    private static final int FINE_LOCATION_REQUEST = 2;
 
     private PlaceDetectionClient mPlaceDetectionClient;
 
     Button mPlacePickerButton;
+    Button mCurrentPlaceButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,12 +44,15 @@ public class PlaceActivity extends AppCompatActivity implements View.OnClickList
 
         mPlacePickerButton = (Button) findViewById(R.id.activity_place_placePickerButton);
         mPlacePickerButton.setOnClickListener(this);
+
+        mCurrentPlaceButton = (Button) findViewById(R.id.activity_place_currentPlaceButton);
+        mCurrentPlaceButton.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.activity_place_picker_button:
+            case R.id.activity_place_placePickerButton:
                 initPlacePicker();
                 break;
             case R.id.activity_place_currentPlaceButton:
@@ -57,15 +62,27 @@ public class PlaceActivity extends AppCompatActivity implements View.OnClickList
 
     private void loadCurrentPlace() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_REQUEST);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
             return;
         }
+
         Task<PlaceLikelihoodBufferResponse> placeResult = mPlaceDetectionClient.getCurrentPlace(null);
         placeResult.addOnCompleteListener(new OnCompleteListener<PlaceLikelihoodBufferResponse>() {
             @Override
@@ -102,5 +119,18 @@ public class PlaceActivity extends AppCompatActivity implements View.OnClickList
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case FINE_LOCATION_REQUEST:
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    loadCurrentPlace();
+                } else {
+
+                }
+                break;
+        }
     }
 }
