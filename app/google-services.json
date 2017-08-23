@@ -1,0 +1,70 @@
+{
+  "project_info": {
+    "project_number": "834166854629",
+    "firebase_url": "https://stellar-chariot-149006.firebaseio.com",
+    "project_id": "stellar-chariot-149006",
+    "storage_bucket": "stellar-chariot-149006.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:834166854629:android:b4802cbc4221f59a",
+        "android_client_info": {
+          "package_name": "com.infotechincubator.lamborghini"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "834166854629-an26ejdka6n50p2vstf50k1rk9i069ni.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.infotechincubator.lamborghini",
+            "certificate_hash": "3fbeac7d52ef3f529b44bf918b27a615b60c4272"
+          }
+        },
+        {
+          "client_id": "834166854629-4e53hsp5mld7tbpc69sg6aikof9hljp6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.infotechincubator.lamborghini",
+            "certificate_hash": "15811f2bc45bf27bfa8b7fec4e779e25b1df718b"
+          }
+        },
+        {
+          "client_id": "834166854629-u0pnbcbippk6islh6qn99jqusr5jplgt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJndV5dQSDsnJtPdb4qh8pPXDvB06ZLsA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "834166854629-u0pnbcbippk6islh6qn99jqusr5jplgt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "834166854629-pqo0u1afu2db7dli253n0gfs2rg01tsu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "mm.com.nexone.Laundry-Express"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
