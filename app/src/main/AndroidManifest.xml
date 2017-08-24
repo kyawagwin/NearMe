@@ -48,6 +48,10 @@
 
         </activity>
 
+        <activity android:name=".PlaceListActivity" android:label="Place List">
+
+        </activity>
+
     </application>
 
 </manifest>
