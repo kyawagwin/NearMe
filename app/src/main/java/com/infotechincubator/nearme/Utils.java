@@ -13,6 +13,7 @@ public class Utils {
         placeTypes.add(new PlaceType("Bakery", R.drawable.bakery, "Bakery", "bakery"));
         placeTypes.add(new PlaceType("Bank", R.drawable.bank, "Bank", "bank"));
         placeTypes.add(new PlaceType("Bar", R.drawable.bar, "Bar", "bar"));
+        placeTypes.add(new PlaceType("School", R.drawable.bar, "School", "school"));
 
         return placeTypes;
     }
