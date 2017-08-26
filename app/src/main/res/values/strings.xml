@@ -1,4 +1,6 @@
 <resources>
-    <string name="app_name">Near Me</string>
+    <string name="app_name">Shar Mal</string>
     <string name="title_activity_maps">Map</string>
+
+    <integer name="scan_radius">1000</integer>
 </resources>

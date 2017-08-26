@@ -6,6 +6,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 public class PlaceTypeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     PlaceType mPlaceType;
 
@@ -25,14 +27,14 @@ public class PlaceTypeViewHolder extends RecyclerView.ViewHolder implements View
         mPlaceType = placeType;
 
         titleTV.setText(placeType.getTitle());
-        placeTypeIV.setImageResource(placeType.getImageId());
+        Glide.with(itemView.getContext()).asBitmap().load(mPlaceType.getImageId()).into(placeTypeIV);
     }
 
     @Override
     public void onClick(View view) {
         Intent intent = new Intent(view.getContext(), PlaceListActivity.class);
         intent.putExtra(Constants.PLACE_TYPE_EXTRA, mPlaceType.getCode());
-
+        intent.putExtra(Constants.PLACE_TYPE_NAME_EXTRA, mPlaceType.getTitle());
         view.getContext().startActivity(intent);
     }
 }

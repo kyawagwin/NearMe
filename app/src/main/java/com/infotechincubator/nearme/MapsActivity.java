@@ -1,17 +1,35 @@
 package com.infotechincubator.nearme;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -27,21 +45,41 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends BaseActivity implements OnMapReadyCallback, View.OnClickListener {
 
     private GoogleMap mMap;
-    private List<LatLng> MarkerPoints;
+    private Place mPlace;
+    private ArrayList<Place> mPlaces;
+    private String mPlaceType;
+
+    Button listViewButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        Bundle bundle = getIntent().getParcelableExtra(Constants.PLACE_BUNDLE);
+        mPlace = bundle.getParcelable(Constants.PLACE_BUNDLE);
+        mPlaces = bundle.getParcelableArrayList(Constants.PLACE_LIST_BUNDLE);
+        mPlaceType = getIntent().getStringExtra(Constants.PLACE_TYPE_NAME_EXTRA);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        listViewButton = (Button) findViewById(R.id.activity_maps_listViewButton);
+        listViewButton.setOnClickListener(this);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        return true;
+    }
 
     /**
      * Manipulates the map once available.
@@ -56,22 +94,71 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        } else {
+            mMap.setMyLocationEnabled(true);
+            //UiSettings uiSettings = mMap.getUiSettings();
+            //uiSettings.setMapToolbarEnabled(false);
+        }
 
+        if(mPlace != null) {
+            mMap.addMarker(new MarkerOptions().position(mPlace.getLatLng()).title(mPlace.getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mPlace.getLatLng(), 15.0f));
+
+            setTitle(mPlace.getName());
+        } else {
+            // Move marker to current last known location
+            LatLng latLng = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14.0f));
+        }
+
+
+        // Clears all the existing markers;
+        if (mPlaces != null) {
+            setTitle(mPlaceType);
+
+            mMap.clear();
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()), 15.0f));
+
+            for (int i = 0; i < mPlaces.size(); i++) {
+
+                // Creating a marker
+                MarkerOptions markerOptions = new MarkerOptions();
+
+                // Getting a place from the places list
+                mPlace = mPlaces.get(i);
+
+                // Setting the position for the marker
+                markerOptions.position(mPlace.getLatLng());
+
+                markerOptions.title(mPlace.getName());
+                mMap.addMarker(new MarkerOptions().position(mPlace.getLatLng()).title(mPlace.getName()).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+
+                // Placing a marker on the touched position
+                Marker m = mMap.addMarker(markerOptions);
+            }
+        }
+
+        /*
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng point) {
                 // Already two locations
-                if (MarkerPoints.size() > 1) {
-                    MarkerPoints.clear();
+                if (mMarkerPoints.size() > 1) {
+                    mMarkerPoints.clear();
                     mMap.clear();
                 }
 
                 // Adding new item to the ArrayList
-                MarkerPoints.add(point);
+                mMarkerPoints.add(point);
 
                 // Creating MarkerOptions
                 MarkerOptions options = new MarkerOptions();
@@ -79,13 +166,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // Setting the position of the marker
                 options.position(point);
 
-                /**
-                 * For the start location, the color of marker is GREEN and
-                 * for the end location, the color of marker is RED.
-                 */
-                if (MarkerPoints.size() == 1) {
+
+                // For the start location, the color of marker is GREEN and
+                // for the end location, the color of marker is RED.
+
+                if (mMarkerPoints.size() == 1) {
                     options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-                } else if (MarkerPoints.size() == 2) {
+                } else if (mMarkerPoints.size() == 2) {
                     options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
                 }
 
@@ -94,9 +181,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.addMarker(options);
 
                 // Checks, whether start and end locations are captured
-                if (MarkerPoints.size() >= 2) {
-                    LatLng origin = MarkerPoints.get(0);
-                    LatLng dest = MarkerPoints.get(1);
+                if (mMarkerPoints.size() >= 2) {
+                    LatLng origin = mMarkerPoints.get(0);
+                    LatLng dest = mMarkerPoints.get(1);
 
                     // Getting URL to the Google Directions API
                     String url = getUrl(origin, dest);
@@ -111,6 +198,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         });
+        */
     }
 
     private String getUrl(LatLng origin, LatLng dest) {
@@ -136,6 +224,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         return url;
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.activity_maps_listViewButton:
+                onBackPressed();
+                break;
+        }
     }
 
     // Fetches data from url passed

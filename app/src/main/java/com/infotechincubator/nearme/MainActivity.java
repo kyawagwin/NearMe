@@ -1,17 +1,25 @@
 package com.infotechincubator.nearme;
 
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.ImageView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends BaseActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     PlaceTypeAdapter placeTypeAdapter;
     RecyclerView placeTypeRV;
-    ImageView bgIV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,24 +27,32 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        // TODO: 23/8/17 remember to do bitmap processing off of the main thread:
-        /*
-        // adapt the image to the size of the display
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        Bitmap bmp = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(
-                getResources(),R.drawable.bg_main),size.x,size.y,true);
+        placeTypeRV = (RecyclerView) findViewById(R.id.activity_main_placeTypeRV);
 
-        // fill the background ImageView with the resized image
-        ImageView bgIV = (ImageView) findViewById(R.id.activity_main_bgIV);
-        bgIV.setImageBitmap(bmp);
-        */
+        initialize();
+    }
+
+    @Override
+    protected void initialize() {
+        super.initialize();
 
         placeTypeAdapter = new PlaceTypeAdapter(Utils.getPlaceTypes());
-        placeTypeRV = (RecyclerView) findViewById(R.id.activity_main_placeTypeRV);
         placeTypeRV.setLayoutManager(new GridLayoutManager(this, 2));
         placeTypeRV.setHasFixedSize(true);
         placeTypeRV.setAdapter(placeTypeAdapter);
+
+        Location lastKnownLocation = getLastKnownLocation();
+        if (lastKnownLocation != null) {
+            Geocoder gCoder = new Geocoder(this);
+            List<Address> addresses = null;
+            try {
+                addresses = gCoder.getFromLocation(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (addresses != null && addresses.size() > 0) {
+                setTitle(addresses.get(0).getThoroughfare());
+            }
+        }
     }
 }
