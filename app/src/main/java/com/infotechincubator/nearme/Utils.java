@@ -1,5 +1,9 @@
 package com.infotechincubator.nearme;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.maps.android.SphericalUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,10 +27,10 @@ public class Utils {
         placeTypes.add(new PlaceType("Cafe", R.drawable.cafe, "Cafe", "cafe"));
         placeTypes.add(new PlaceType("Car repair", R.drawable.car_repair, "Car repair", "car_repair"));
         placeTypes.add(new PlaceType("Car wash", R.drawable.car_wash, "Car wash", "car_wash"));
+        placeTypes.add(new PlaceType("Clinic", R.drawable.clinic, "Clinic", "doctor"));
         placeTypes.add(new PlaceType("Clothing store", R.drawable.clothing_store, "Clothing store", "clothing_store"));
         placeTypes.add(new PlaceType("Convenience store", R.drawable.convenience_store, "Convenience store", "convenience_store"));
         placeTypes.add(new PlaceType("Dental clinic", R.drawable.dental_clinic, "Dental clinic", "dentist"));
-        placeTypes.add(new PlaceType("Clinic", R.drawable.clinic, "Clinic", "doctor"));
         placeTypes.add(new PlaceType("Electrician", R.drawable.electrician, "Electrician", "electrician"));
         placeTypes.add(new PlaceType("Electronics store", R.drawable.electronics_store, "Electronics store", "electronics_store"));
         placeTypes.add(new PlaceType("Florist", R.drawable.florist, "Florist", "florist"));
@@ -50,7 +54,6 @@ public class Utils {
         placeTypes.add(new PlaceType("Restaurant", R.drawable.restaurant , "Restaurant", "restaurant"));
         placeTypes.add(new PlaceType("School", R.drawable.school , "School", "school"));
         placeTypes.add(new PlaceType("Shoe store", R.drawable.shoe_store , "Shoe store", "shoe_store"));
-        placeTypes.add(new PlaceType("Pharmacy", R.drawable.pharmacy , "Pharmacy", "pharmacy"));
         placeTypes.add(new PlaceType("Shopping mall", R.drawable.shopping_mall , "Shopping mall", "shopping_mall"));
         placeTypes.add(new PlaceType("Spa", R.drawable.spa , "Spa", "spa"));
         placeTypes.add(new PlaceType("Stadium", R.drawable.stadium , "Stadium", "stadium"));
@@ -70,5 +73,14 @@ public class Utils {
         float dist = (float) (earthRadius * c);
 
         return dist;
+    }
+
+    public static LatLngBounds toBounds(LatLng center, double radiusInMeters) {
+        double distanceFromCenterToCorner = radiusInMeters * Math.sqrt(2.0);
+        LatLng southwestCorner =
+                SphericalUtil.computeOffset(center, distanceFromCenterToCorner, 225.0);
+        LatLng northeastCorner =
+                SphericalUtil.computeOffset(center, distanceFromCenterToCorner, 45.0);
+        return new LatLngBounds(southwestCorner, northeastCorner);
     }
 }

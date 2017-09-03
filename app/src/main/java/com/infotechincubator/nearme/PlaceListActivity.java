@@ -20,6 +20,12 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.facebook.FacebookRequestError;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.places.PlaceManager;
+import com.facebook.places.model.PlaceFields;
+import com.facebook.places.model.PlaceSearchRequestParams;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
@@ -36,7 +42,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class PlaceListActivity extends BaseActivity implements View.OnClickListener {
+public class PlaceListActivity extends BaseActivity implements View.OnClickListener, PlaceManager.OnRequestReadyCallback, GraphRequest.Callback {
     private static final String TAG = PlaceListActivity.class.getSimpleName();
 
     private List<Place> mPlaces;
@@ -65,7 +71,23 @@ public class PlaceListActivity extends BaseActivity implements View.OnClickListe
 
         setTitle(mPlaceTypeName);
 
+        //testFbSearchPlace();
+
         initialize();
+    }
+
+    private void testFbSearchPlace() {
+        PlaceSearchRequestParams.Builder builder = new PlaceSearchRequestParams.Builder();
+        // TODO: 2/9/17 facebook limited number of categories that can search
+        builder.addCategory("BARBER_SHOP");
+        builder.setDistance(1000);
+        builder.setLimit(10);
+        builder.addField(PlaceFields.CATEGORY_LIST);
+        builder.addField(PlaceFields.NAME);
+        builder.addField(PlaceFields.LOCATION);
+        builder.addField(PlaceFields.OVERALL_STAR_RATING);
+
+        PlaceManager.newPlaceSearchRequest(builder.build(), this);
     }
 
     @Override
@@ -145,6 +167,24 @@ public class PlaceListActivity extends BaseActivity implements View.OnClickListe
         intent.putExtra(Constants.PLACE_BUNDLE, bundle);
         intent.putExtra(Constants.PLACE_TYPE_NAME_EXTRA, mPlaceTypeName);
         startActivity(intent);
+    }
+
+    @Override
+    public void onLocationError(PlaceManager.LocationError error) {
+        Log.e(TAG, error.toString());
+    }
+
+    @Override
+    public void onRequestReady(GraphRequest graphRequest) {
+        graphRequest.setCallback(this);
+        graphRequest.executeAsync();
+    }
+
+    @Override
+    public void onCompleted(GraphResponse response) {
+        if (response != null) {
+            Log.i(TAG, response.getRawResponse());
+        }
     }
 
     private class PlacesTask extends AsyncTask<String, Integer, String> {

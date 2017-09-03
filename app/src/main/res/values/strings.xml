@@ -1,6 +1,7 @@
 <resources>
-    <string name="app_name">Shar Mal</string>
+    <string name="app_name">Near Me (Shar Mal)</string>
+    <string name="facebook_app_id">1432898550139107</string>
+    <string name="facebook_client_token">ed42e4a7c25f0b2f7d94a2aeaa039ee6</string>
     <string name="title_activity_maps">Map</string>
-
     <integer name="scan_radius">1000</integer>
 </resources>

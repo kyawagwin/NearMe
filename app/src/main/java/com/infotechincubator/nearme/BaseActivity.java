@@ -15,6 +15,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 
+import com.facebook.FacebookSdk;
+
 import java.util.List;
 
 public abstract class BaseActivity extends AppCompatActivity {
@@ -25,6 +27,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        FacebookSdk.setClientToken(getResources().getString(R.string.facebook_client_token));
         lastKnownLocation = getLastKnownLocation();
     }
 
