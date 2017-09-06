@@ -4,6 +4,7 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,13 +24,20 @@ import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +62,7 @@ public class MainActivity extends BaseActivity implements PlaceManager.OnRequest
         fbPlaceRV = (RecyclerView) findViewById(R.id.activity_main_fbPlaceTypeRV);
 
         testFbCurrentPlace();
+        testFsCurrentPlace();
 
         initialize();
     }
@@ -141,6 +150,36 @@ public class MainActivity extends BaseActivity implements PlaceManager.OnRequest
         PlaceManager.newCurrentPlaceRequest(builder.build(), this);
     }
 
+    private void testFsCurrentPlace() {
+        // calling for the image
+        // https://igx.4sqi.net/img/general/width1920/48064500_Ty_JRH2qGNyMUOeh13fXmV8n0UUgi3MWiiIRznrxucU.jpg
+
+        StringBuilder sb = new StringBuilder("https://api.foursquare.com/v2/venues/explore?");
+        sb.append("v=");
+        sb.append(getResources().getString(R.string.foursquare_version_param));
+        sb.append("&ll=");
+        sb.append(lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude());
+        sb.append("&radius=");
+        sb.append(getResources().getInteger(R.integer.scan_radius));
+        sb.append("&section=topPicks");
+        sb.append("&limit=");
+        sb.append(10);
+        sb.append("&section=food");
+        sb.append("&venuePhotos=");
+        sb.append(1);
+        sb.append("&client_id=");
+        sb.append(getResources().getString(R.string.foursquare_client_id));
+        sb.append("&client_secret=");
+        sb.append(getResources().getString(R.string.foursquare_client_secret));
+
+        VenuesTask venuesTask = new VenuesTask();
+        venuesTask.execute(sb.toString());
+
+        Log.i(TAG, "testFsCurrentPlace: " + sb.toString());
+
+
+    }
+
     @Override
     public void onLocationError(PlaceManager.LocationError error) {
         // Invoked if the Places Graph SDK failed to retrieve
@@ -196,5 +235,102 @@ public class MainActivity extends BaseActivity implements PlaceManager.OnRequest
     @Override
     public void onError(Status status) {
         Log.e(TAG, "onError: " + status.getStatusMessage());
+    }
+
+    private class VenuesTask extends AsyncTask<String, Integer, String> {
+
+        String data = null;
+
+        // Invoked by execute() method of this object
+        @Override
+        protected String doInBackground(String... url) {
+            try {
+                data = downloadUrl(url[0]);
+            } catch (Exception e) {
+                Log.d("Background Task", e.toString());
+            }
+            return data;
+        }
+
+        // Executed after the complete execution of doInBackground() method
+        @Override
+        protected void onPostExecute(String result) {
+            Log.d(TAG, "VenuesTask => result: " + result);
+            parseFsVenues(result);
+        }
+    }
+
+    private void parseFsVenues(String result) {
+        Gson gson = new Gson();
+        JsonObject jsonObject = gson.fromJson(result, JsonObject.class);
+        JsonArray jsonArray = jsonObject.getAsJsonObject("response").getAsJsonArray("groups");
+        JsonArray jsonItems = jsonArray.get(0).getAsJsonObject().getAsJsonArray("items");
+        for(int i = 0; i < jsonItems.size(); i++) {
+            JsonElement jsonVenue = jsonItems.get(i);
+
+            Log.i(TAG, "parseFsVenues: (" + i + ") " + jsonVenue.toString());
+        }
+
+        /*
+        JSONArray jsonArray = null;
+        FbPlace fbPlace;
+        try {
+            jsonArray = jsonObject.getJSONArray("data");
+
+            for(int i = 0; i < jsonArray.length(); i++) {
+                jsonObject = jsonArray.getJSONObject(i);
+                fbPlace = gson.fromJson(jsonObject.toString(), FbPlace.class);
+                fbPlace.is_silhouette = jsonObject.getJSONObject("picture").getJSONObject("data").getBoolean("is_silhouette");
+                fbPlace.picture_url = jsonObject.getJSONObject("picture").getJSONObject("data").getString("url");
+                fbPlace.category = jsonObject.getJSONArray("category_list").getJSONObject(0).getString("name");
+                fbPlace.lat = jsonObject.getJSONObject("location").getDouble("latitude");
+                fbPlace.lng = jsonObject.getJSONObject("location").getDouble("longitude");
+                fbPlaces.add(fbPlace);
+                Log.i(TAG, "onCompleted: " + fbPlace.toString());
+            }
+            fbPlaceListAdapter.setPlaces(fbPlaces);
+            fbPlaceListAdapter.notifyDataSetChanged();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        */
+    }
+
+    private String downloadUrl(String strUrl) throws IOException {
+        String data = "";
+        InputStream iStream = null;
+        HttpURLConnection urlConnection = null;
+        try {
+            URL url = new URL(strUrl);
+
+            // Creating an http connection to communicate with url
+            urlConnection = (HttpURLConnection) url.openConnection();
+
+            // Connecting to url
+            urlConnection.connect();
+
+            // Reading data from url
+            iStream = urlConnection.getInputStream();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
+
+            StringBuffer sb = new StringBuffer();
+
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+
+            data = sb.toString();
+
+            br.close();
+
+        } catch (Exception e) {
+            Log.d("Exception", e.toString());
+        } finally {
+            iStream.close();
+            urlConnection.disconnect();
+        }
+        return data;
     }
 }

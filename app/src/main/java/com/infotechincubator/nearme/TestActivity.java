@@ -29,10 +29,17 @@ public class TestActivity extends BaseActivity implements PlaceManager.OnRequest
 
         setContentView(R.layout.activity_test);
 
+
+
+        testPlaceAutocomplete();
+        //testFbSearchPlace();
+    }
+
+    private void testPlaceAutocomplete() {
         TelephonyManager tm = (TelephonyManager)this.getSystemService(Context.TELEPHONY_SERVICE);
         String countryCodeValue = tm.getNetworkCountryIso();
 
-        AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder().setCountry("MM").setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT).build();
+        AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder().setCountry(countryCodeValue).setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT).build();
 
         LatLng currentLatLng = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
 
@@ -52,8 +59,6 @@ public class TestActivity extends BaseActivity implements PlaceManager.OnRequest
                 Log.i(TAG, "An error occurred: " + status);
             }
         });
-
-        //testFbSearchPlace();
     }
 
     private void testFbSearchPlace() {
