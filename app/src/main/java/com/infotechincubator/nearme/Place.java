@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.HashMap;
+
 public class Place implements Parcelable {
     private String placeId;
     private String source;
@@ -38,8 +40,27 @@ public class Place implements Parcelable {
         name = in.readString();
         address = in.readString();
         phoneNumber = in.readString();
-        distance = in.readInt();
         iconUrl = in.readString();
+        distance = in.readInt();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(placeId);
+        dest.writeString(source);
+        dest.writeParcelable(latLng, flags);
+        dest.writeFloat(rating);
+        dest.writeInt(priceLevel);
+        dest.writeString(name);
+        dest.writeString(address);
+        dest.writeString(phoneNumber);
+        dest.writeString(iconUrl);
+        dest.writeInt(distance);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<Place> CREATOR = new Creator<Place>() {
@@ -98,22 +119,4 @@ public class Place implements Parcelable {
         this.distance = distance;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(placeId);
-        parcel.writeString(source);
-        parcel.writeParcelable(latLng, i);
-        parcel.writeFloat(rating);
-        parcel.writeInt(priceLevel);
-        parcel.writeString(name);
-        parcel.writeString(address);
-        parcel.writeString(phoneNumber);
-        parcel.writeInt(distance);
-        parcel.writeString(iconUrl);
-    }
 }

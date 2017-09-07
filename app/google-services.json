@@ -48,15 +48,66 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
+              "client_id": "834166854629-pqo0u1afu2db7dli253n0gfs2rg01tsu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "mm.com.nexone.Laundry-Express"
+              }
+            },
+            {
               "client_id": "834166854629-u0pnbcbippk6islh6qn99jqusr5jplgt.apps.googleusercontent.com",
               "client_type": 3
-            },
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:834166854629:android:1ba2f4add3828e94",
+        "android_client_info": {
+          "package_name": "com.infotechincubator.nearme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "834166854629-q81q585lgkjlqre01rvhr3evfkemvv2c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.infotechincubator.nearme",
+            "certificate_hash": "3fbeac7d52ef3f529b44bf918b27a615b60c4272"
+          }
+        },
+        {
+          "client_id": "834166854629-u0pnbcbippk6islh6qn99jqusr5jplgt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJndV5dQSDsnJtPdb4qh8pPXDvB06ZLsA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
             {
               "client_id": "834166854629-pqo0u1afu2db7dli253n0gfs2rg01tsu.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "mm.com.nexone.Laundry-Express"
               }
+            },
+            {
+              "client_id": "834166854629-u0pnbcbippk6islh6qn99jqusr5jplgt.apps.googleusercontent.com",
+              "client_type": 3
             }
           ]
         },
